@@ -35,5 +35,5 @@ jobs:
         uses: denoland/deployctl@v1
         with:
           project: "tommy0412-vidsrc-api-36"
-          entrypoint: "index.js"
+          entrypoint: "node index.js"
           root: ""
