@@ -7,7 +7,7 @@ import axios from "axios";
 import randomUseragent from 'random-useragent';
 
 const app = express()
-const port = 3000
+const port = 1234
 
 randomUseragent.getRandom();
 //console.log(randomUseragent)
@@ -35,23 +35,31 @@ app.get('/', (req, res) => {
 
 app.get('/:movieTMDBid', async(req, res) => {
     const movieId = req.params.movieTMDBid;
-
+    
     const sourcesId = await getVidsrcMovieSourcesId(movieId);
+    console.log("sourcesId: ",sourcesId); 
     if(!sourcesId) res.status(404).send({
         status: 404,
         return: "Oops movie not available"
     });
 
     const sources = await getVidsrcSources(sourcesId);
+    
+    console.log("sources",sources);
 
-    const vidplay = sources.data.result.find((v) => v.title.toLowerCase() === 'vidplay');
+    const vidplay = sources.data.result.find((v) => v.title.toLowerCase() === 'f2cloud');
 
     if(!vidplay) res.status(404).json('vidplay stream not found for vidsrc');
 
     const vidplayLink = await getVidsrcSourceDetails(vidplay.id);
+
+    console.log("vidplayLink: ", vidplayLink);
     
     const key = await encodeId(vidplayLink.split('/e/')[1].split('?')[0]);
     const data = await getFutoken(key, vidplayLink);
+
+    console.log("key: ",key);
+    console.log("data: ",data);
 
     let subtitles;
     //if(vidplayLink.includes('sub.info='))
@@ -66,19 +74,27 @@ app.get('/:movieTMDBid', async(req, res) => {
 		//console.log(sourcesCode)
     }
 
-    const response = await axios.get(`https://vidplay.online/mediainfo/${data}?${vidplayLink.split('?')[1]}&autostart=true`, {
+    console.log("subtitles: ",subtitles);
+
+
+    console.log("fuu: ",`https://vid2v11.site/mediainfo/${data}?${vidplayLink.split('?')[1]}&autostart=true`);
+
+
+    const response = await axios.get(`https://vid2v11.site/mediainfo/${data}?${vidplayLink.split('?')[1]}&autostart=true`, {
         params: {
             v: Date.now().toString(),
         },
         headers: {
 			"Origin": ip,
             "Referer": vidplayLink,
-			"Host": "vidplay.online",
+			"Host": "vid2v11.site",
 			"User-Agent": randomUseragent
         }
     });
-
+    
     const result = response.data.result;
+
+    console.log("result: ",response.data);
 
     if (!result && typeof result !== 'object') {
         throw new Error('an error occured');
@@ -110,7 +126,7 @@ app.get('/:showTMDBid/:seasonNum/:episodeNum', async(req, res) => {
 
     const sources = await getVidsrcSources(sourcesId);
 
-    const vidplay = sources.data.result.find((v) => v.title.toLowerCase() === 'vidplay');
+    const vidplay = sources.data.result.find((v) => v.title.toLowerCase() === 'f2cloud');
 
     if(!vidplay) res.status(404).json('vidplay stream not found for vidsrc');
 
@@ -131,14 +147,14 @@ app.get('/:showTMDBid/:seasonNum/:episodeNum', async(req, res) => {
         subtitles = await subtitlesFetch.data;
     }
 
-    const response = await axios.get(`https://vidplay.online/mediainfo/${data}?${vidplayLink.split('?')[1]}&autostart=true`, {
+    const response = await axios.get(`https://vid2v11.site/mediainfo/${data}?${vidplayLink.split('?')[1]}&autostart=true`, {
         params: {
             v: Date.now().toString(),
         },
         headers: {
 			"Origin": ip,
             "Referer": vidplayLink,
-			"Host": "vidplay.online",
+			"Host": "vid2v11.site",
 			"User-Agent": randomUseragent
         }
     });
